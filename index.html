@@ -335,6 +335,18 @@
   }
   #edit-toggle.owner-visible { display: inline-block; }
 
+  #owner-lock {
+    display: none;
+    position: fixed; right: 20px; bottom: 68px; z-index: 21;
+    font-family: 'Space Mono', monospace; font-weight: 700; font-size: 10.5px; letter-spacing: .06em;
+    padding: 4px 10px;
+    background: var(--card-bg); color: var(--grey);
+    border: 1.5px solid var(--ink); border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 2px 2px 0 var(--ink);
+  }
+  #owner-lock.owner-visible { display: inline-block; }
+
   /* tiny, near-invisible owner-unlock dot in the footer */
   #owner-key {
     display: inline-block; width: 8px; height: 8px; margin-left: 8px;
@@ -348,7 +360,7 @@
     font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--ink);
     background: var(--card-bg); padding: 4px 10px; border: var(--border-width) solid var(--ink);
     border-radius: 6px; box-shadow: 2px 2px 0 var(--ink);
-    opacity: 0; transition: opacity .25s;
+    opacity: 0; pointer-events: none; transition: opacity .25s;
   }
   #save-status.show { opacity: 1; }
 
@@ -436,6 +448,7 @@
 </div>
 
 <button id="edit-toggle">✎ Edit</button>
+<button id="owner-lock" title="Lock this browser again">🔒 Lock</button>
 <div id="save-status">Saved</div>
 
 <script>
@@ -487,7 +500,7 @@
   /* ---------- Owner-only edit lock ----------
      CHANGE THIS to your own secret word. Anyone who doesn't know it,
      or doesn't have the ?owner=... link, only ever sees the view-only site. */
-  var OWNER_SECRET = 'changeme123';
+  var OWNER_SECRET = 'Siva1131';
   var OWNER_FLAG = 'portfolio-owner-unlocked';
   var isOwner = false;
 
@@ -500,6 +513,16 @@
       isOwner = localStorage.getItem(OWNER_FLAG) === '1';
     }catch(e){ isOwner = false; }
     $('edit-toggle').classList.toggle('owner-visible', isOwner);
+    $('owner-lock').classList.toggle('owner-visible', isOwner);
+  }
+
+  function lockOwner(){
+    try{ localStorage.removeItem(OWNER_FLAG); }catch(e){}
+    isOwner = false;
+    setEditing(false);
+    $('edit-toggle').classList.remove('owner-visible');
+    $('owner-lock').classList.remove('owner-visible');
+    showSaveStatus('Locked');
   }
 
   function promptOwnerUnlock(){
@@ -727,7 +750,7 @@
 
     var urlLabel = document.createElement('div');
     urlLabel.className = 'field-label edit-only';
-    urlLabel.textContent = 'LINK (YOUTUBE UNLISTED / DRIVE / DIRECT .MP4 — CLEANEST, NO LIKES/COMMENTS)';
+    urlLabel.textContent = 'LINK (GOOGLE DRIVE SHARE LINK RECOMMENDED — CLEAN, NO LIKES/COMMENTS)';
     cardBody.appendChild(urlLabel);
 
     var urlInput = document.createElement('input');
@@ -839,6 +862,7 @@
 
   function wireEvents(){
     $('edit-toggle').addEventListener('click', function(){ setEditing(!editing); });
+    $('owner-lock').addEventListener('click', lockOwner);
     $('owner-key').addEventListener('click', promptOwnerUnlock);
 
     $('photo-frame').addEventListener('click', function(){
